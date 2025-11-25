@@ -62,27 +62,31 @@ a { display:block; margin-top:15px; }
 </div>
 
 <script>
-// FIXED LOGIN CODE
-document.getElementById("loginForm").addEventListener("submit", async function(e){
+document.getElementById("loginForm").addEventListener("submit", async function (e) {
     e.preventDefault();
 
-    const formData = new FormData(this);
-    const data = Object.fromEntries(formData.entries());
+    const data = Object.fromEntries(new FormData(this).entries());
 
-    const res = await fetch("/login", {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        credentials: "include",
-        body: JSON.stringify(data)
-    });
+    try {
+        const res = await fetch("/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            credentials: "include",
+            body: JSON.stringify(data)
+        });
 
-    const json = await res.json();
+        const json = await res.json();
 
-    if(json.success){
-        alert("Login successful!");
-        window.location.href = "index.html"; // your homepage
-    } else {
-        alert(json.message || "Login failed");
+        if (json.success) {
+            localStorage.setItem("user", JSON.stringify(json.user));
+            alert("Login successful!");
+            window.location.href = "index.html";
+        } else {
+            alert(json.message || "Invalid username or password");
+        }
+
+    } catch (err) {
+        alert("Network error. Check your server.");
     }
 });
 </script>

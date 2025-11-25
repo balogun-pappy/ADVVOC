@@ -68,26 +68,28 @@ a {
 </div>
 
 <script>
-// FIXED SIGNUP CODE
 document.getElementById("signupForm").addEventListener("submit", async function(e){
     e.preventDefault();
 
-    const formData = new FormData(this);
-    const data = Object.fromEntries(formData.entries());
+    const data = Object.fromEntries(new FormData(this).entries());
 
-    const res = await fetch("/signup", {
-        method:"POST",
-        headers:{"Content-Type":"application/json"},
-        body: JSON.stringify(data)
-    });
+    try {
+        const res = await fetch("/signup", {
+            method:"POST",
+            headers:{"Content-Type":"application/json"},
+            body: JSON.stringify(data)
+        });
 
-    const json = await res.json();
+        const json = await res.json();
 
-    if(json.success){
-        alert("Account created! Redirecting...");
-        window.location.href = "login.html";
-    } else {
-        alert(json.message || "Signup failed");
+        if(json.success){
+            alert("Account created! Redirecting...");
+            window.location.href = "login.html";
+        } else {
+            alert(json.message || "Signup failed");
+        }
+    } catch (err) {
+        alert("Network error. Check your server.");
     }
 });
 </script>
