@@ -68,21 +68,21 @@ a {
 </div>
 
 <script>
-document.getElementById("signupForm").addEventListener("submit", async function(e){
-    e.preventDefault();
+document.getElementById("signupForm").addEventListener("submit", async function(e) {
+    e.preventDefault(); // stop page refresh
 
     const data = Object.fromEntries(new FormData(this).entries());
 
     try {
         const res = await fetch("/signup", {
-            method:"POST",
-            headers:{"Content-Type":"application/json"},
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify(data)
         });
 
         const json = await res.json();
 
-        if(json.success){
+        if (json.success) {
             alert("Account created! Redirecting...");
             window.location.href = "login.html";
         } else {

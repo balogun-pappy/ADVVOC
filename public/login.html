@@ -62,8 +62,8 @@ a { display:block; margin-top:15px; }
 </div>
 
 <script>
-document.getElementById("loginForm").addEventListener("submit", async function (e) {
-    e.preventDefault();
+document.getElementById("loginForm").addEventListener("submit", async function(e) {
+    e.preventDefault(); // STOP page reload
 
     const data = Object.fromEntries(new FormData(this).entries());
 
@@ -75,7 +75,13 @@ document.getElementById("loginForm").addEventListener("submit", async function (
             body: JSON.stringify(data)
         });
 
-        const json = await res.json();
+        let json;
+        try {
+            json = await res.json();
+        } catch {
+            alert("Server error: invalid response.");
+            return;
+        }
 
         if (json.success) {
             localStorage.setItem("user", JSON.stringify(json.user));
@@ -86,7 +92,7 @@ document.getElementById("loginForm").addEventListener("submit", async function (
         }
 
     } catch (err) {
-        alert("Network error. Check your server.");
+        alert("Network error. Is your server running?");
     }
 });
 </script>
