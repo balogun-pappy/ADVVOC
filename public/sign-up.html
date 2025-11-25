@@ -58,30 +58,30 @@
         <a class="link" href="login.html">Already have an account? Login</a>
     </div>
 
-    <script>
-document.getElementById("signupForm").onsubmit = async function (e) {
+<script>
+document.getElementById("signupForm").onsubmit = async function(e) {
     e.preventDefault();
 
-    const formData = new FormData(this);
+    const form = new FormData(this);
 
     const body = {
-        username: formData.get("username").trim(),
-        password: formData.get("password").trim(),
-        phone: formData.get("phone").trim()
+        username: form.get("username").trim(),
+        password: form.get("password").trim(),
+        phone: form.get("phone").trim()
     };
 
-    const res = await fetch("/signup", {
+    const res = await fetch("https://advvoc.onrender.com/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
-        credentials: "include"  // required for session
+        credentials: "include"
     });
 
     let data;
     try {
         data = await res.json();
-    } catch (err) {
-        document.getElementById("error").innerText = "Server error. Please try again.";
+    } catch {
+        document.getElementById("error").innerText = "Server not responding.";
         return;
     }
 
@@ -89,7 +89,7 @@ document.getElementById("signupForm").onsubmit = async function (e) {
         alert("Signup successful! Please login.");
         window.location.href = "login.html";
     } else {
-        document.getElementById("error").innerText = data.message || "Signup failed";
+        document.getElementById("error").innerText = data.message || "Signup failed.";
     }
 };
 </script>

@@ -58,38 +58,35 @@
     </div>
 
 <script>
-document.getElementById("loginForm").onsubmit = async function (e) {
+document.getElementById("loginForm").onsubmit = async function(e) {
     e.preventDefault();
 
-    const formData = new FormData(this);
+    const form = new FormData(this);
 
     const body = {
-        username: formData.get("username").trim(),
-        password: formData.get("password").trim()
+        username: form.get("username").trim(),
+        password: form.get("password").trim()
     };
 
-    // SEND LOGIN REQUEST
-    const res = await fetch("/login", {
+    const res = await fetch("https://advvoc.onrender.com/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
-        credentials: "include" // important for session cookies
+        credentials: "include"
     });
 
     let data;
     try {
         data = await res.json();
-    } catch (err) {
-        document.getElementById("error").innerText = "Server error. Try again.";
+    } catch {
+        document.getElementById("error").innerText = "Server not responding.";
         return;
     }
 
     if (data.success) {
-        // Redirect to homepage
         window.location.href = "index.html";
     } else {
-        // Show error message from backend
-        document.getElementById("error").innerText = data.message || "Login failed";
+        document.getElementById("error").innerText = data.message || "Login failed.";
     }
 };
 </script>
