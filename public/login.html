@@ -69,7 +69,7 @@ document.getElementById("loginForm").addEventListener("submit", async (e) => {
 
     const data = Object.fromEntries(new FormData(e.target));
 
-    const res = await fetch("/login", {
+    const res = await fetch("https://advvoc.onrender.com/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",

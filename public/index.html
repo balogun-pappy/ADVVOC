@@ -61,11 +61,14 @@
 
 
 <script>
+// RENDER BACKEND URL
+const API = "https://advvoc.onrender.com";
+
 // ==============================================
 // AUTH CHECK
 // ==============================================
 async function authCheck(){
-  const res = await fetch("/auth-check", { credentials:"include" });
+  const res = await fetch(`${API}/auth-check`, { credentials:"include" });
   const data = await res.json();
 
   if(data.loggedIn){
@@ -78,7 +81,7 @@ async function authCheck(){
 }
 
 async function logout(){
-  await fetch("/logout", { method:"POST", credentials:"include" });
+  await fetch(`${API}/logout`, { method:"POST", credentials:"include" });
   location.reload();
 }
 
@@ -88,7 +91,7 @@ async function logout(){
 let posts = [];
 
 async function loadPosts(){
-  const res = await fetch("/images");
+  const res = await fetch(`${API}/images`);
   posts = await res.json();
   renderGallery();
 }
@@ -129,7 +132,7 @@ function renderGallery(){
 // LIKE POST
 // ==============================================
 async function likePost(id){
-  const res = await fetch(`/like/${id}`, { method:"POST" });
+  const res = await fetch(`${API}/like/${id}`, { method:"POST" });
   const data = await res.json();
   if(data.success) loadPosts();
 }
@@ -142,9 +145,10 @@ async function commentPost(e, id){
   const text = e.target.text.value.trim();
   if(!text) return;
 
-  await fetch(`/comment/${id}`, {
+  await fetch(`${API}/comment/${id}`, {
     method:"POST",
     headers:{ "Content-Type":"application/json" },
+    credentials:"include",
     body: JSON.stringify({ text })
   });
 
@@ -161,7 +165,7 @@ uploadForm.onsubmit = async e =>{
 
   const fd = new FormData(uploadForm);
 
-  const res = await fetch("/upload", {
+  const res = await fetch(`${API}/upload`, {
     method:"POST",
     body: fd,
     credentials:"include"

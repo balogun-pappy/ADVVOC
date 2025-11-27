@@ -212,6 +212,18 @@ app.post("/comment/:id", async (req, res) => {
         res.json({ success: false });
     }
 });
+// -----------------------------------
+// AUTH CHECK
+// -----------------------------------
+app.get("/auth-check", (req, res) => {
+    if (req.session.user) {
+        return res.json({
+            loggedIn: true,
+            username: req.session.user.username
+        });
+    }
+    res.json({ loggedIn: false });
+});
 
 // -----------------------------------
 const PORT = process.env.PORT || 1998;
