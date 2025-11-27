@@ -65,23 +65,23 @@ a {
 
 <script>
 document.getElementById("loginForm").addEventListener("submit", async (e) => {
-    e.preventDefault();
+    e.preventDefault(); // STOP REFRESH / STOP JUMP TO TOP
 
     const data = Object.fromEntries(new FormData(e.target));
 
     const res = await fetch("https://advvoc.onrender.com/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        credentials: "include",
+        credentials: "include", // REQUIRED FOR SESSIONS
         body: JSON.stringify(data)
     });
 
     const json = await res.json();
 
     if (json.success) {
-        window.location.href = "index.html";
+        window.location.href = "index.html"; // GO TO MAIN PAGE
     } else {
-        alert(json.message);
+        alert(json.message || "Login failed. Check username/password.");
     }
 });
 </script>

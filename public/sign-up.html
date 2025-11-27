@@ -4,6 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Sign Up - ADVOC</title>
+
 <style>
 body {
   background: #f0f2f5;
@@ -44,8 +45,14 @@ button {
 button:hover {
   background: #145bd1;
 }
+#status {
+  margin-top: 15px;
+  font-size: 14px;
+  color: red;
+}
 </style>
 </head>
+
 <body>
 <div class="card">
   <h2>Sign Up</h2>
@@ -55,29 +62,42 @@ button:hover {
     <input name="password" type="password" placeholder="Password" required />
     <input name="phone" placeholder="Phone" />
     <input name="email" placeholder="Email" />
-    <button>Sign Up</button>
+    <button type="submit">Sign Up</button>
   </form>
+
+  <div id="status"></div>
 </div>
 
 <script>
+// FULLY FIXED SIGNUP HANDLER
 document.getElementById("signupForm").addEventListener("submit", async (e) => {
-    e.preventDefault();
+    e.preventDefault();  // 🔥 stops refresh 100%
+
+    const status = document.getElementById("status");
+    status.textContent = "Creating account...";
 
     const data = Object.fromEntries(new FormData(e.target));
 
-    const res = await fetch("https://advvoc.onrender.com/signup", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify(data)
-    });
+    try {
+        const res = await fetch("https://advvoc.onrender.com/signup", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            credentials: "include",
+            body: JSON.stringify(data)
+        });
 
-    const json = await res.json();
+        const json = await res.json();
 
-    if (json.success) {
-        window.location.href = "login.html";
-    } else {
-        alert(json.message);
+        if (json.success) {
+            status.style.color = "green";
+            status.textContent = "Account created ✔ Redirecting...";
+            setTimeout(() => window.location.href = "login.html", 900);
+        } else {
+            status.style.color = "red";
+            status.textContent = json.message || "Signup failed";
+        }
+    } catch (err) {
+        status.textContent = "Network error — try again.";
     }
 });
 </script>
