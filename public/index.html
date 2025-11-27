@@ -60,13 +60,19 @@ dunice2017_db_user
 
   <main>
     <section id="uploadPanel" class="upload-panel" aria-hidden="true">
-      <form id="uploadForm" class="upload-row">
-        <input type="file" name="media" accept="image/*,video/*" required />
-        <input type="text" name="caption" placeholder="Write a caption (optional)" />
-        <button class="btn" type="submit">Upload</button>
-        <div id="uploadStatus" class="small" style="margin-left:8px"></div>
-      </form>
-    </section>
+  <form id="uploadForm" class="upload-row"
+        action="/upload"
+        method="POST"
+        enctype="multipart/form-data">
+
+    <input type="file" name="media" accept="image/*,video/*" required />
+    <input type="text" name="caption" placeholder="Write a caption (optional)" />
+    <button class="btn" type="submit">Upload</button>
+
+    <div id="uploadStatus" class="small" style="margin-left:8px"></div>
+  </form>
+</section>
+
 
     <h2 style="text-align:center;margin:6px 0 18px 0">Media Gallery</h2>
 

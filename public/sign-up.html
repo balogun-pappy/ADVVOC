@@ -1,95 +1,85 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Sign Up - ADVOC</title>
-
 <style>
 body {
-    background:#f0f2f5;
-    font-family:'Segoe UI', sans-serif;
-    margin:0;
-    padding:0;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    height:100vh;
+  background: #f0f2f5;
+  font-family: "Segoe UI", sans-serif;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
 }
 .card {
-    background:white;
-    padding:40px;
-    border-radius:12px;
-    width:350px;
-    box-shadow:0 4px 20px rgba(0,0,0,0.1);
-    text-align:center;
+  background: white;
+  padding: 40px;
+  border-radius: 12px;
+  width: 350px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  text-align: center;
 }
 input {
-    width:100%;
-    padding:12px;
-    margin-top:10px;
-    border-radius:8px;
-    border:1px solid #ddd;
+  width: 100%;
+  padding: 12px;
+  margin-top: 10px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
 }
 button {
-    width:100%;
-    padding:12px;
-    margin-top:20px;
-    background:#1877f2;
-    color:white;
-    border:none;
-    border-radius:8px;
-    cursor:pointer;
-    font-size:16px;
+  width: 100%;
+  padding: 12px;
+  margin-top: 20px;
+  background: #1877f2;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 16px;
 }
 button:hover {
-    background:#145bd1;
+  background: #145bd1;
 }
 a {
-    display:block;
-    margin-top:15px;
+  display: block;
+  margin-top: 15px;
 }
 </style>
-
 </head>
 <body>
-
 <div class="card">
-    <h2>Sign Up</h2>
+  <h2>Sign Up</h2>
 
-    <form id="signupForm">
-        <input type="text" name="username" placeholder="Username" required>
-        <input type="password" name="password" placeholder="Password" required>
-        <input type="text" name="phone" placeholder="Phone Number">
-        <button type="submit">Sign Up</button>
-    </form>
-
-    <a href="login.html">Already have an account? Login</a>
-</div>
+  <form id="signupForm">
+    <input name="username" required>
+    <input name="password" type="password" required>
+    <input name="phone">
+    <button>Sign Up</button>
+</form>
 
 <script>
-document.getElementById("signupForm").addEventListener("submit", async function(e) {
-    e.preventDefault(); // stop page refresh
+document.getElementById("signupForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
 
-    const data = Object.fromEntries(new FormData(this).entries());
+    const data = Object.fromEntries(new FormData(e.target));
 
-    try {
-        const res = await fetch("/signup", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(data)
-        });
+    const res = await fetch("/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify(data)
+    });
 
-        const json = await res.json();
+    const json = await res.json();
 
-        if (json.success) {
-            alert("Account created! Redirecting...");
-            window.location.href = "login.html";
-        } else {
-            alert(json.message || "Signup failed");
-        }
-    } catch (err) {
-        alert("Network error. Check your server.");
+    if (json.success) {
+        window.location.href = "login.html";
+    } else {
+        alert(json.message);
     }
 });
 </script>
