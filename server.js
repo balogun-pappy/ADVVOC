@@ -8,29 +8,27 @@ const mongoose = require("mongoose");
 const MongoStore = require("connect-mongo");
 const bcrypt = require("bcryptjs");
 
-const upload = require("./config/upload");
-const cloudinary = require("./config/cloudinary");
+// Cloudinary uploader
+const uploadFile = require("./config/upload");
 
+// Models
 const User = require("./models/User");
 const Post = require("./models/Post");
-const BusinessPost = require("./models/BusinessPost");
-const DM = require("./models/DM");
 
 const app = express();
 
-// --------------------
+// -----------------------------------
 // SECURITY
-// --------------------
+// -----------------------------------
 app.use(helmet({ crossOriginResourcePolicy: false }));
 
-// --------------------
-// CORS FIX FOR RENDER
-// --------------------
+// -----------------------------------
+// CORS (Render compatible)
+// -----------------------------------
 app.use(cors({
     origin: [
         "http://localhost:1998",
         "http://127.0.0.1:1998",
-        "http://localhost:3000",
         "https://advvoc.onrender.com"
     ],
     credentials: true
@@ -40,17 +38,16 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static("public"));
 
-// --------------------
+// -----------------------------------
 // MONGO CONNECT
-// --------------------
+// -----------------------------------
 mongoose.connect(process.env.MONGO_URL)
     .then(() => console.log("MongoDB connected"))
-    .catch(err => console.error("MongoDB error:", err));
+    .catch(err => console.log("MongoDB error:", err));
 
-
-// --------------------
-// SESSION FIXED FOR RENDER
-// --------------------
+// -----------------------------------
+// SESSION CONFIG
+// -----------------------------------
 const isProduction = process.env.NODE_ENV === "production";
 
 app.use(session({
@@ -65,15 +62,15 @@ app.use(session({
     }),
     cookie: {
         httpOnly: true,
-        secure: isProduction,  // <--- FIXED FOR HTTPS
+        secure: isProduction,
         sameSite: isProduction ? "none" : "lax",
         maxAge: 14 * 24 * 60 * 60 * 1000
     }
 }));
 
-// --------------------
+// -----------------------------------
 // SIGNUP
-// --------------------
+// -----------------------------------
 app.post("/signup", async (req, res) => {
     try {
         const { username, password, phone, email } = req.body;
@@ -103,9 +100,9 @@ app.post("/signup", async (req, res) => {
     }
 });
 
-// --------------------
+// -----------------------------------
 // LOGIN
-// --------------------
+// -----------------------------------
 app.post("/login", async (req, res) => {
     try {
         const { username, password } = req.body;
@@ -127,37 +124,95 @@ app.post("/login", async (req, res) => {
     }
 });
 
-// --------------------
-// UPLOAD FIXED
-// --------------------
-app.post("/upload", upload.single("media"), async (req, res) => {
+// -----------------------------------
+// UPLOAD POST (Cloudinary + MongoDB)
+// -----------------------------------
+app.post("/upload", uploadFile.single("media"), async (req, res) => {
     try {
-        if (!req.session.user) {
+        if (!req.session.user)
             return res.json({ success: false, message: "Not logged in" });
-        }
 
-        if (!req.file) {
+        if (!req.file)
             return res.json({ success: false, message: "No file uploaded" });
-        }
 
-        const url = req.file.path;
+        const type = req.file.mimetype.startsWith("video") ? "video" : "image";
 
         const post = await Post.create({
             user: req.session.user.username,
-            url,
-            type: req.file.mimetype.startsWith("video") ? "video" : "image",
-            createdAt: new Date()
+            caption: req.body.caption || "",
+            type,
+            url: req.file.path,
+            likes: 0,
+            comments: []
         });
 
-        res.json({ success: true, post });
+        res.json({
+            success: true,
+            message: "Upload successful",
+            post
+        });
+
+    } catch (error) {
+        console.error("UPLOAD ERROR:", error);
+        res.status(500).json({ success: false, message: "Upload failed" });
+    }
+});
+
+// -----------------------------------
+// GET ALL POSTS
+// -----------------------------------
+app.get("/images", async (req, res) => {
+    try {
+        const posts = await Post.find().sort({ createdAt: -1 });
+        res.json(posts);
     } catch (err) {
-        console.error("UPLOAD ERROR:", err);
+        console.error(err);
+        res.json([]);
+    }
+});
+
+// -----------------------------------
+// LIKE POST
+// -----------------------------------
+app.post("/like/:id", async (req, res) => {
+    try {
+        const post = await Post.findById(req.params.id);
+        post.likes++;
+        await post.save();
+
+        res.json({ success: true, likes: post.likes });
+    } catch (err) {
+        console.error(err);
         res.json({ success: false });
     }
 });
 
-// --------------------
-// START
-// --------------------
+// -----------------------------------
+// COMMENT ON POST
+// -----------------------------------
+app.post("/comment/:id", async (req, res) => {
+    try {
+        const { text } = req.body;
+
+        if (!req.session.user)
+            return res.json({ success: false, message: "Not logged in" });
+
+        const post = await Post.findById(req.params.id);
+
+        post.comments.push({
+            user: req.session.user.username,
+            text
+        });
+
+        await post.save();
+
+        res.json({ success: true, comments: post.comments });
+    } catch (err) {
+        console.error(err);
+        res.json({ success: false });
+    }
+});
+
+// -----------------------------------
 const PORT = process.env.PORT || 1998;
 app.listen(PORT, () => console.log("Server running on port " + PORT));
