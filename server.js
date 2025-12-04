@@ -42,23 +42,22 @@ const Image = mongoose.model("Image", imageSchema);
 // -----------------------------------
 // MIDDLEWARE
 // -----------------------------------
-app.use(cors({
-  origin: [
-    "http://localhost:5500",
-    "https://advvoc.onrender.com",
-    "https://advvoc-1.onrender.com"
-  ],
-  credentials: true
-}));
+app.use(
+  cors({
+    origin: [
+      "http://localhost:5500",
+      "https://advvoc.onrender.com",
+      "https://advvoc-1.onrender.com",
+    ],
+    credentials: true,
+  })
+);
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use(express.static("public"));
 
-// -----------------------------------
-// TRUST PROXY (IMPORTANT FOR RENDER)
-// -----------------------------------
 if (process.env.NODE_ENV === "production") {
   app.set("trust proxy", 1);
 }
@@ -73,27 +72,27 @@ app.use(
     saveUninitialized: false,
     store: MongoStore.create({
       mongoUrl: process.env.MONGO_URL,
-      collectionName: "sessions"
+      collectionName: "sessions",
     }),
     cookie: {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-      maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
+      maxAge: 1000 * 60 * 60 * 24 * 7,
     },
-    name: "sid"
+    name: "sid",
   })
 );
 
 // -----------------------------------
-// AUTH CHECK ROUTE
+// AUTH CHECK
 // -----------------------------------
 app.get("/auth-check", (req, res) => {
   res.json({ loggedIn: !!req.session.user });
 });
 
 // -----------------------------------
-// SIGN UP
+// SIGNUP
 // -----------------------------------
 app.post("/signup", async (req, res) => {
   const { username, password } = req.body;
@@ -134,7 +133,7 @@ app.post("/login", async (req, res) => {
 // LOGOUT
 // -----------------------------------
 app.post("/logout", (req, res) => {
-  req.session.destroy(err => {
+  req.session.destroy((err) => {
     if (err) {
       console.error("Logout error:", err);
       return res.json({ success: false });
@@ -143,7 +142,7 @@ app.post("/logout", (req, res) => {
     res.clearCookie("sid", {
       path: "/",
       secure: process.env.NODE_ENV === "production",
-      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax"
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
     });
 
     res.json({ success: true });
@@ -151,7 +150,7 @@ app.post("/logout", (req, res) => {
 });
 
 // -----------------------------------
-// UPLOAD IMAGE / VIDEO
+// UPLOAD IMAGE/VIDEO
 // -----------------------------------
 app.post("/upload", multer.single("file"), async (req, res) => {
   if (!req.file || !req.file.path) {
@@ -184,7 +183,7 @@ app.get("/images", async (req, res) => {
 });
 
 // -----------------------------------
-// LIKE IMAGE
+// LIKE
 // -----------------------------------
 app.post("/like/:id", async (req, res) => {
   await Image.findByIdAndUpdate(req.params.id, { $inc: { likes: 1 } });
@@ -192,7 +191,7 @@ app.post("/like/:id", async (req, res) => {
 });
 
 // -----------------------------------
-// COMMENT ON IMAGE
+// COMMENT
 // -----------------------------------
 app.post("/comment/:id", async (req, res) => {
   const { comment } = req.body;
